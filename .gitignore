@@ -5,7 +5,6 @@
 !.idea/codeStyleSettings.xml
 .DS_Store
 build
-google-services.json
 !/library/google-services.json
 
 crashlytics-build.properties

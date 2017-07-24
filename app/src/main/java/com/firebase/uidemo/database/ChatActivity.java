@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.uidemo.R;
 import com.firebase.uidemo.util.SignInResultNotifier;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -62,7 +63,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mMessageEdit = (EditText) findViewById(R.id.messageEdit);
         mEmptyListMessage = (TextView) findViewById(R.id.emptyTextView);
 
-        mChatRef = FirebaseDatabase.getInstance().getReference().child("chats");
+        mChatRef = FirebaseDatabase.getInstance().getReference().child(getChatRoomName());
 
         mSendButton.setOnClickListener(this);
 
@@ -74,6 +75,11 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mMessages.setLayoutManager(mManager);
     }
 
+    private String getChatRoomName() {
+        String roomName = getIntent().getStringExtra("room_name");
+        return roomName != null && roomName.length() > 0 ? roomName : "public_room";
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -81,11 +87,11 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         // Default Database rules do not allow unauthenticated reads, so we need to
         // sign in before attaching the RecyclerView adapter otherwise the Adapter will
         // not be able to read any data from the Database.
-        if (isSignedIn()) {
-            attachRecyclerViewAdapter();
-        } else {
-            signInAnonymously();
-        }
+//        if (isSignedIn()) {
+//            attachRecyclerViewAdapter();
+//        } else {
+        signInAnonymously();
+//        }
     }
 
     @Override
@@ -163,11 +169,18 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     private void signInAnonymously() {
         Toast.makeText(this, "Signing in...", Toast.LENGTH_SHORT).show();
-        mAuth.signInAnonymously()
+        mAuth.signInWithEmailAndPassword("vtthachs@gmailcom", "123")
+//        mAuth.signInAnonymously()
                 .addOnSuccessListener(this, new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult result) {
                         attachRecyclerViewAdapter();
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i("vtt", "onFailure::" + e.getMessage());
                     }
                 })
                 .addOnCompleteListener(new SignInResultNotifier(this));

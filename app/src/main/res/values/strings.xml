@@ -73,4 +73,6 @@
     <string name="signed_in">Signed In</string>
     <string name="enable_credential_selector">Enable Smart Lock\'s credential selector</string>
     <string name="enable_hint_selector">Enable Smart Lock\'s hint selector</string>
+    <string name="chat_room_select">Chat room select</string>
+    <string name="desc_chat_room_select">Customize chat room and user name</string>
 </resources>

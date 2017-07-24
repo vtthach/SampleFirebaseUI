@@ -49,18 +49,21 @@ public class ChooserActivity extends AppCompatActivity {
 
     private static class ActivityChooserAdapter extends RecyclerView.Adapter<ActivityStarterHolder> {
         private static final Class[] CLASSES = new Class[]{
+                ChatRoomSelectActivity.class,
                 ChatActivity.class,
                 AuthUiActivity.class,
                 ImageActivity.class,
         };
 
         private static final int[] DESCRIPTION_NAMES = new int[]{
+                R.string.chat_room_select,
                 R.string.name_chat,
                 R.string.name_auth_ui,
                 R.string.name_image
         };
 
         private static final int[] DESCRIPTION_IDS = new int[]{
+                R.string.desc_chat_room_select,
                 R.string.desc_chat,
                 R.string.desc_auth_ui,
                 R.string.desc_image
@@ -87,7 +90,6 @@ public class ChooserActivity extends AppCompatActivity {
     private static class ActivityStarterHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView mTitle;
         private TextView mDescription;
-
         private Class mStarterClass;
 
         public ActivityStarterHolder(View itemView) {
@@ -98,7 +100,6 @@ public class ChooserActivity extends AppCompatActivity {
 
         private void bind(Class aClass, @StringRes int name, @StringRes int description) {
             mStarterClass = aClass;
-
             mTitle.setText(name);
             mDescription.setText(description);
             itemView.setOnClickListener(this);
@@ -106,7 +107,8 @@ public class ChooserActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            itemView.getContext().startActivity(new Intent(itemView.getContext(), mStarterClass));
+            Intent intent = new Intent(itemView.getContext(), mStarterClass);
+            itemView.getContext().startActivity(intent);
         }
     }
 }
