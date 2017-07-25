@@ -28,6 +28,9 @@ import android.widget.TextView;
 import com.firebase.uidemo.auth.AuthUiActivity;
 import com.firebase.uidemo.database.ChatActivity;
 import com.firebase.uidemo.storage.ImageActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,6 +38,8 @@ import butterknife.ButterKnife;
 public class ChooserActivity extends AppCompatActivity {
     @BindView(R.id.activities)
     RecyclerView mActivities;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mChatRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +50,8 @@ public class ChooserActivity extends AppCompatActivity {
         mActivities.setLayoutManager(new LinearLayoutManager(this));
         mActivities.setAdapter(new ActivityChooserAdapter());
         mActivities.setHasFixedSize(true);
+        mAuth = FirebaseAuth.getInstance();
+        mChatRef = FirebaseDatabase.getInstance().getReference().child(getChatRoomName()); //TODO
     }
 
     private static class ActivityChooserAdapter extends RecyclerView.Adapter<ActivityStarterHolder> {

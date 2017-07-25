@@ -15,12 +15,12 @@ public class ChatRoomSelectActivity extends AppCompatActivity {
 
     @BindView(R.id.edUserName) EditText edUserName;
     @BindView(R.id.edRoomName) EditText edRoomName;
+    @BindView(R.id.edPassword) EditText edPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room_select);
-
         ButterKnife.bind(this);
     }
 
@@ -28,7 +28,8 @@ public class ChatRoomSelectActivity extends AppCompatActivity {
     public void start() {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("room_name", edRoomName.getText().toString());
-        intent.putExtra("user_name", edUserName.getText().toString());
+        intent.putExtra("username", edUserName.getText().toString());
+        intent.putExtra("password", edPassword.getText().toString());
         startActivity(intent);
     }
 }

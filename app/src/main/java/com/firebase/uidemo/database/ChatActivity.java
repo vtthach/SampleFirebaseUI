@@ -19,7 +19,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +32,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -50,6 +50,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private LinearLayoutManager mManager;
     protected FirebaseRecyclerAdapter<Chat, ChatHolder> mAdapter;
     protected TextView mEmptyListMessage;
+    protected TextView tvError;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +63,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mSendButton = (Button) findViewById(R.id.sendButton);
         mMessageEdit = (EditText) findViewById(R.id.messageEdit);
         mEmptyListMessage = (TextView) findViewById(R.id.emptyTextView);
+        tvError = (TextView) findViewById(R.id.tvError);
 
         mChatRef = FirebaseDatabase.getInstance().getReference().child(getChatRoomName());
 
@@ -112,20 +114,29 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     @Override
     public void onClick(View v) {
-        String uid = mAuth.getCurrentUser().getUid();
-        String name = "User " + uid.substring(0, 6);
+        tvError.setText("");
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            String name = mAuth.getCurrentUser().getEmail();
 
-        Chat chat = new Chat(name, mMessageEdit.getText().toString(), uid);
-        mChatRef.push().setValue(chat, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError error, DatabaseReference reference) {
-                if (error != null) {
-                    Log.e(TAG, "Failed to write message", error.toException());
+            Chat chat = new Chat(name,
+                    mMessageEdit.getText().toString(),
+                    mAuth.getCurrentUser().getUid());
+            mChatRef.push().setValue(chat, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError error, DatabaseReference reference) {
+                    if (error != null) {
+                        log("Failed to write message" + error.toException());
+                    }
                 }
-            }
-        });
+            });
 
-        mMessageEdit.setText("");
+            mMessageEdit.setText("");
+        }
+    }
+
+    private void log(String s) {
+        tvError.setText(s);
     }
 
     @Override
@@ -169,7 +180,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     private void signInAnonymously() {
         Toast.makeText(this, "Signing in...", Toast.LENGTH_SHORT).show();
-        mAuth.signInWithEmailAndPassword("vtthachs@gmailcom", "123")
+        mAuth.signInWithEmailAndPassword(getUserName(), getPassword())
 //        mAuth.signInAnonymously()
                 .addOnSuccessListener(this, new OnSuccessListener<AuthResult>() {
                     @Override
@@ -180,10 +191,18 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 .addOnFailureListener(this, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.i("vtt", "onFailure::" + e.getMessage());
+                        log("signInAnonymously onFailure:" + e.getMessage());
                     }
                 })
                 .addOnCompleteListener(new SignInResultNotifier(this));
+    }
+
+    private String getPassword() {
+        return getIntent().getStringExtra("password");
+    }
+
+    private String getUserName() {
+        return getIntent().getStringExtra("username");
     }
 
     private boolean isSignedIn() {
