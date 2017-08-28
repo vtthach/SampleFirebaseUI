@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +34,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -48,9 +51,40 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     private RecyclerView mMessages;
     private LinearLayoutManager mManager;
-    protected FirebaseRecyclerAdapter<Chat, ChatHolder> mAdapter;
+    protected FirebaseRecyclerAdapter<FireBaseMessage, ChatHolder> mAdapter;
     protected TextView mEmptyListMessage;
     protected TextView tvError;
+
+    private ChildEventListener childEventListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot snapshot, String s) {
+            Log.i("vtt", "onChildAdded: " + s);
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot snapshot, String s) {
+            Log.i("vtt", "onChildChanged: " + s);
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot snapshot) {
+            Log.i("vtt", "onChildChanged - getChildrenCount: " + snapshot.getChildrenCount());
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot snapshot, String s) {
+            Log.i("vtt", "onChildMoved: " + s);
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError error) {
+            Log.i("vtt", "onCancelled: " + error.getMessage());
+
+        }
+    };
+    private String threadId = "-Kr7P0jTKhld6taLcS89";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +100,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         tvError = (TextView) findViewById(R.id.tvError);
 
         mChatRef = FirebaseDatabase.getInstance().getReference().child(getChatRoomName());
+        mChatRef.addChildEventListener(childEventListener);
 
         mSendButton.setOnClickListener(this);
 
@@ -78,8 +113,9 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     }
 
     private String getChatRoomName() {
-        String roomName = getIntent().getStringExtra("room_name");
-        return roomName != null && roomName.length() > 0 ? roomName : "public_room";
+//        String roomName = getIntent().getStringExtra("room_name");
+//        return roomName != null && roomName.length() > 0 ? roomName : "public_room";
+        return "Threads/" + threadId + "/messages";
     }
 
     @Override
@@ -117,9 +153,9 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         tvError.setText("");
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            String name = mAuth.getCurrentUser().getEmail();
+            String name = "Name hack";
 
-            Chat chat = new Chat(name,
+            FireBaseMessage chat = new FireBaseMessage(name,
                     mMessageEdit.getText().toString(),
                     mAuth.getCurrentUser().getUid());
             mChatRef.push().setValue(chat, new DatabaseReference.CompletionListener() {
@@ -158,15 +194,15 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mMessages.setAdapter(mAdapter);
     }
 
-    protected FirebaseRecyclerAdapter<Chat, ChatHolder> getAdapter() {
+    protected FirebaseRecyclerAdapter<FireBaseMessage, ChatHolder> getAdapter() {
         Query lastFifty = mChatRef.limitToLast(50);
-        return new FirebaseRecyclerAdapter<Chat, ChatHolder>(
-                Chat.class,
+        return new FirebaseRecyclerAdapter<FireBaseMessage, ChatHolder>(
+                FireBaseMessage.class,
                 R.layout.message,
                 ChatHolder.class,
                 lastFifty) {
             @Override
-            public void populateViewHolder(ChatHolder holder, Chat chat, int position) {
+            public void populateViewHolder(ChatHolder holder, FireBaseMessage chat, int position) {
                 holder.bind(chat);
             }
 
@@ -180,8 +216,8 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
     private void signInAnonymously() {
         Toast.makeText(this, "Signing in...", Toast.LENGTH_SHORT).show();
-        mAuth.signInWithEmailAndPassword(getUserName(), getPassword())
-//        mAuth.signInAnonymously()
+//        mAuth.signInWithEmailAndPassword(getUserName(), getPassword())
+        mAuth.signInAnonymously()
                 .addOnSuccessListener(this, new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult result) {

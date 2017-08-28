@@ -3,7 +3,7 @@ package com.firebase.uidemo.database;
 public class Chat {
     private String mName;
     private String mMessage;
-    private String mUid;
+    private String userId;
 
     public Chat() {
         // Needed for Firebase
@@ -12,7 +12,7 @@ public class Chat {
     public Chat(String name, String message, String uid) {
         mName = name;
         mMessage = message;
-        mUid = uid;
+        userId = uid;
     }
 
     public String getName() {
@@ -31,11 +31,11 @@ public class Chat {
         mMessage = message;
     }
 
-    public String getUid() {
-        return mUid;
+    public String getID() {
+        return userId;
     }
 
-    public void setUid(String uid) {
-        mUid = uid;
+    public void setID(String userId) {
+        this.userId = userId;
     }
 }

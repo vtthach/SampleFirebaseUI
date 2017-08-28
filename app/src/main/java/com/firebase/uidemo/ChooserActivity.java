@@ -54,6 +54,10 @@ public class ChooserActivity extends AppCompatActivity {
         mChatRef = FirebaseDatabase.getInstance().getReference().child(getChatRoomName()); //TODO
     }
 
+    private String getChatRoomName() {
+        return "default";
+    }
+
     private static class ActivityChooserAdapter extends RecyclerView.Adapter<ActivityStarterHolder> {
         private static final Class[] CLASSES = new Class[]{
                 ChatRoomSelectActivity.class,

@@ -38,12 +38,12 @@ public class ChatHolder extends RecyclerView.ViewHolder {
         mGray300 = ContextCompat.getColor(itemView.getContext(), R.color.material_gray_300);
     }
 
-    public void bind(Chat chat) {
-        setName(chat.getName());
-        setText(chat.getMessage());
+    public void bind(FireBaseMessage chat) {
+        setName(chat.user_firebase_id);
+        setText(chat.data);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        setIsSender(currentUser != null && chat.getUid().equals(currentUser.getUid()));
+        setIsSender(currentUser != null && currentUser.getUid().equals(chat.user_firebase_id));
     }
 
     private void setName(String name) {
